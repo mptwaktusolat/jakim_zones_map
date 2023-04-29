@@ -12,6 +12,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(primarySwatch: Colors.purple),
       home: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
@@ -21,10 +22,10 @@ class MainApp extends StatelessWidget {
         ),
         drawer: Drawer(
           child: Column(
-            children: [Text("hello")],
+            children: const [Text("Waktu Solat Map visualization")],
           ),
         ),
-        body: App(),
+        body: const App(),
       ),
     );
   }
