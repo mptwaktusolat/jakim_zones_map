@@ -20,9 +20,9 @@ class MainApp extends StatelessWidget {
           // foregroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
         ),
-        drawer: Drawer(
+        drawer: const Drawer(
           child: Column(
-            children: const [Text("Waktu Solat Map visualization")],
+            children: [Text("Waktu Solat Map visualization")],
           ),
         ),
         body: const App(),

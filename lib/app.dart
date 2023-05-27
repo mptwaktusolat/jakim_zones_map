@@ -2,10 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:jakim_zones_map/locations/location_coordinate.dart';
+import 'package:jakim_zones_map/model/zones_data_model.dart';
+import 'package:jakim_zones_map/util/network_fetcher.dart';
 import 'package:latlong2/latlong.dart';
-
-import 'locations/location_coordinate_model.dart';
 
 enum PlaceData { azanPro, jakim }
 
@@ -18,7 +17,8 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   final MapController _mapController = MapController();
-  late List<LocationCoordinateData> _locationDatas;
+  List<ZonesDataModel>? _locationDatas;
+  late Future<List<List<ZonesDataModel>>> _zonesData;
 
   PlaceData _placeData = PlaceData.azanPro;
   double _zoomValue = 6.5;
@@ -26,10 +26,15 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    _locationDatas = _placeData == PlaceData.azanPro
-        ? LocationCoordinate.azanProZones
-        : LocationCoordinate.jakimZones;
+    // jakimZones = NetworkFetcher.fetchJakimZones();
+    // azanProZones = NetworkFetcher.fetchAzanproZones();
+    _zonesData = _getZonesData();
   }
+
+  Future<List<List<ZonesDataModel>>> _getZonesData() async => Future.wait([
+        NetworkFetcher.fetchAzanproZones(),
+        NetworkFetcher.fetchJakimZones(),
+      ]);
 
   Color _getBgColor(String input) {
     // generate random colour for each state
@@ -48,94 +53,105 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterMap(
-      mapController: _mapController,
-      options: MapOptions(
-        center: LatLng(4.92, 108.23),
-        zoom: _zoomValue,
-        minZoom: 5,
-        maxZoom: 15,
-        onMapEvent: (MapEvent mapEvent) {
-          if (mapEvent is MapEventScrollWheelZoom) {
-            setState(() => _zoomValue = mapEvent.zoom);
-          }
-        },
-      ),
-      nonRotatedChildren: [
-        AttributionWidget.defaultWidget(
-          source: 'OpenStreetMap contributors',
-          onSourceTapped: null,
-        ),
-        Positioned(
-          bottom: 20,
-          right: 10,
-          child: SizedBox(
-            width: 275,
-            child: Slider(
-                label: "Zoom",
-                value: _zoomValue,
-                max: 15,
-                min: 5,
-                onChanged: (double newZoomValue) {
-                  setState(() => _zoomValue = newZoomValue);
-                  _mapController.move(_mapController.center, newZoomValue);
-                }),
-          ),
-        ),
-        Positioned(
-          bottom: 40,
-          left: 10,
-          child: ElevatedButton(
-              onPressed: () {
-                if (_placeData == PlaceData.azanPro) {
-                  setState(() {
-                    _placeData = PlaceData.jakim;
-                    _locationDatas = LocationCoordinate.jakimZones;
-                  });
-                } else {
-                  setState(() {
-                    _placeData = PlaceData.azanPro;
-                    _locationDatas = LocationCoordinate.azanProZones;
-                  });
+    return FutureBuilder(
+      future: _zonesData,
+      builder: (context, AsyncSnapshot<List<List<ZonesDataModel>>> snapshot) {
+        if (snapshot.hasData) {
+          _locationDatas ??= snapshot.data![_placeData.index];
+          return FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              center: LatLng(4.92, 108.23),
+              zoom: _zoomValue,
+              minZoom: 5,
+              maxZoom: 15,
+              onMapEvent: (MapEvent mapEvent) {
+                if (mapEvent is MapEventScrollWheelZoom) {
+                  setState(() => _zoomValue = mapEvent.zoom);
                 }
               },
-              child: Text(_placeData.name.toUpperCase())),
-        ),
-        Positioned(
-            bottom: 20,
-            left: 12,
-            child: Text(
-              "${_locationDatas.length} locations",
-            ))
-      ],
-      children: [
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.example.app',
-        ),
-        MarkerLayer(
-          markers: [
-            for (var loc in _locationDatas)
-              Marker(
-                point: LatLng(loc.lat!, loc.lng!),
-                width: 80,
-                height: 80,
-                builder: (context) {
-                  return Chip(
-                    backgroundColor: _getBgColor(loc.zone.substring(0, 3)),
-                    label: Text(
-                      loc.zone,
-                      style: TextStyle(
-                        color: getContrastingTextColor(
-                            _getBgColor(loc.zone.substring(0, 3))),
-                      ),
-                    ),
-                  );
-                },
+            ),
+            nonRotatedChildren: [
+              AttributionWidget.defaultWidget(
+                source: 'OpenStreetMap contributors',
+                onSourceTapped: null,
               ),
-          ],
-        ),
-      ],
+              Positioned(
+                bottom: 20,
+                right: 10,
+                child: SizedBox(
+                  width: 275,
+                  child: Slider(
+                      label: "Zoom",
+                      value: _zoomValue,
+                      max: 15,
+                      min: 5,
+                      onChanged: (double newZoomValue) {
+                        setState(() => _zoomValue = newZoomValue);
+                        _mapController.move(
+                            _mapController.center, newZoomValue);
+                      }),
+                ),
+              ),
+              Positioned(
+                bottom: 40,
+                left: 10,
+                child: ElevatedButton(
+                    onPressed: () {
+                      if (_placeData == PlaceData.azanPro) {
+                        setState(() {
+                          _placeData = PlaceData.jakim;
+                          _locationDatas = snapshot.data![_placeData.index];
+                        });
+                      } else {
+                        setState(() {
+                          _placeData = PlaceData.azanPro;
+                          _locationDatas = snapshot.data![_placeData.index];
+                        });
+                      }
+                    },
+                    child: Text(_placeData.name.toUpperCase())),
+              ),
+              Positioned(
+                  bottom: 20,
+                  left: 12,
+                  child: Text(
+                    "${_locationDatas!.length} locations",
+                  ))
+            ],
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.app',
+              ),
+              MarkerLayer(
+                markers: [
+                  for (var loc in _locationDatas!)
+                    Marker(
+                      point: LatLng(loc.lat, loc.lang),
+                      width: 80,
+                      height: 80,
+                      builder: (context) {
+                        return Chip(
+                          backgroundColor:
+                              _getBgColor(loc.zone.substring(0, 3)),
+                          label: Text(
+                            loc.zone,
+                            style: TextStyle(
+                              color: getContrastingTextColor(
+                                  _getBgColor(loc.zone.substring(0, 3))),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              ),
+            ],
+          );
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
     );
   }
 }
