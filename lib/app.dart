@@ -19,6 +19,7 @@ class _AppState extends State<App> {
   final MapController _mapController = MapController();
   List<ZonesDataModel>? _locationDatas;
   late Future<List<List<ZonesDataModel>>> _zonesData;
+  LatLng? _lastTap;
 
   PlaceData _placeData = PlaceData.azanPro;
   double _zoomValue = 6.5;
@@ -65,6 +66,9 @@ class _AppState extends State<App> {
               zoom: _zoomValue,
               minZoom: 5,
               maxZoom: 15,
+              onTap: (_, point) {
+                setState(() => _lastTap = point);
+              },
               onMapEvent: (MapEvent mapEvent) {
                 if (mapEvent is MapEventScrollWheelZoom) {
                   setState(() => _zoomValue = mapEvent.zoom);
@@ -145,6 +149,7 @@ class _AppState extends State<App> {
                         );
                       },
                     ),
+                  if (_lastTap != null) _buildPointMarker(_lastTap!),
                 ],
               ),
             ],
@@ -154,4 +159,41 @@ class _AppState extends State<App> {
       },
     );
   }
+}
+
+Marker _buildPointMarker(LatLng point) {
+  return Marker(
+    point: point,
+    width: 220,
+    height: 80,
+    builder: (context) {
+      return Transform.translate(
+        offset: const Offset(0, 31),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              height: 15,
+              width: 15,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: Colors.white,
+                    width: 4,
+                    strokeAlign: BorderSide.strokeAlignOutside),
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              "Lat: ${point.latitude.toStringAsFixed(2)}, Lang: ${point.longitude.toStringAsFixed(2)}",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              maxLines: 1,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
