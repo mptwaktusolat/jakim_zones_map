@@ -13,20 +13,8 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(primarySwatch: Colors.purple),
-      home: Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          // foregroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-        ),
-        drawer: const Drawer(
-          child: Column(
-            children: [Text("Waktu Solat Map visualization")],
-          ),
-        ),
-        body: const App(),
-      ),
+      title: 'Prayer Zones Visualization Tool',
+      home: const App(),
     );
   }
 }
