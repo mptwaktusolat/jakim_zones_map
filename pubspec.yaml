@@ -11,8 +11,11 @@ dependencies:
     sdk: flutter
 
   flutter_map: ^3.1.0
+  flutter_map_geojson: ^1.0.1
+  geojson: ^1.0.0
   http: ^0.13.6
   latlong2: ^0.8.1
+  maps_toolkit: ^2.0.1
   url_launcher: ^6.1.11
 
 dev_dependencies:

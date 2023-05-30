@@ -14,8 +14,7 @@ class App extends StatelessWidget {
       key: _key,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
+        forceMaterialTransparency: true,
         leading: ElevatedButton(
           onPressed: () {
             _key.currentState!.openDrawer();
@@ -41,8 +40,10 @@ class App extends StatelessWidget {
             ListTile(
               title: const Text('GitHub'),
               onTap: () {
-                launchUrl(Uri.parse(
-                    'https://github.com/mptwaktusolat/jakim_zones_map'));
+                launchUrl(
+                    Uri.parse(
+                        'https://github.com/mptwaktusolat/jakim_zones_map'),
+                    mode: LaunchMode.externalApplication);
                 Navigator.pop(context);
               },
             ),

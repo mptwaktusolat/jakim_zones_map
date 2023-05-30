@@ -8,6 +8,14 @@ Related issue: https://github.com/mptwaktusolat/app_waktu_solat_malaysia/issues/
 
 ![screenshot](https://imgur.com/YyNX0tf.png)
 
-## Web link
+## Using the app
+
+### Web
+
+> **Warning**: Known issue: geojson data won't load on Web
 
 https://prayer-zone-my.web.app
+
+### Android & Windows
+
+See [Action](https://github.com/mptwaktusolat/jakim_zones_map/actions) tab to get the app artifacts.

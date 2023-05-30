@@ -2,6 +2,7 @@
 name: Build Windows (ZIP)
 
 "on":
+  push:
   workflow_dispatch:
     inputs:
       flutterChannel:
@@ -32,7 +33,7 @@ jobs:
           flutter pub get
           flutter build windows --release
 
-      - name: Upload the installer as an artifact
+      - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
           path: "build/windows/runner/Release"
