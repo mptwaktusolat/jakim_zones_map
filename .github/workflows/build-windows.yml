@@ -1,0 +1,43 @@
+# Bundle the app to exe installer (usually no need to use this workflow)
+name: Build Windows (ZIP)
+
+"on":
+  workflow_dispatch:
+    inputs:
+      flutterChannel:
+        description: "Flutter channel"
+        default: stable
+        required: true
+        type: choice
+        options:
+          - stable
+          - beta
+          - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ inputs.flutterChannel }}
+
+      - name: Flutter build for Windows
+        run: |
+          flutter pub get
+          flutter build windows --release
+
+      - name: Upload the installer as an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: "build/windows/runner/Release"
+
+      - name: Write summary
+        run: |
+          echo "Build setup"
+          echo ":blue_heart: Using **Flutter ${{ inputs.flutterChannel }}**" >> $GITHUB_STEP_SUMMARY
