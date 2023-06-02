@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:jakim_zones_map/model/zones_data_model.dart';
+import '../model/zones_data_model.dart';
 
 class NetworkFetcher {
   static Future<List<ZonesDataModel>> fetchJakimZones() async {

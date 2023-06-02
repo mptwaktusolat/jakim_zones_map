@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:geojson/geojson.dart';
-import 'package:jakim_zones_map/model/zones_data_model.dart';
-import 'package:jakim_zones_map/util/network_fetcher.dart';
+import 'model/zones_data_model.dart';
+import 'util/network_fetcher.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as mp;
 

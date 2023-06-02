@@ -8,16 +8,16 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> _key = GlobalKey(); // Create a key
+    final GlobalKey<ScaffoldState> key = GlobalKey(); // Create a key
 
     return Scaffold(
-      key: _key,
+      key: key,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         forceMaterialTransparency: true,
         leading: ElevatedButton(
           onPressed: () {
-            _key.currentState!.openDrawer();
+            key.currentState!.openDrawer();
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.black45,
