@@ -23,7 +23,7 @@ class NetworkFetcher {
   static Future<String> fetchMalaysiaDistrictGeojson() async {
     // Originally from https://github.com/nullifye/malaysia.geojson
     var uri = Uri.parse(
-        'https://raw.githubusercontent.com/mptwaktusolat/malaysia.geojson/master/malaysia.district.geojson');
+        'https://raw.githubusercontent.com/mptwaktusolat/malaysia.geojson/master/malaysia.district-jakim.geojson');
 
     return await _fetchRawFromInternet(uri);
   }

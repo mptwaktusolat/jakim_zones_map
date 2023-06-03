@@ -2,9 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:geojson/geojson.dart';
+import 'model/district_jakim_properties.dart';
 import 'model/zones_data_model.dart';
 import 'util/network_fetcher.dart';
 import 'package:latlong2/latlong.dart';
@@ -24,7 +26,7 @@ class _MapViewState extends State<MapView> {
   List<ZonesDataModel>? _locationDatas;
   late Future<List<dynamic>> _zonesData;
   LatLng? _lastTap;
-  String? _lastTapName;
+  DistrictJakimProperties? _selectedDistrict;
 
   PlaceData _placeData = PlaceData.azanPro;
   double _zoomValue = 6.5;
@@ -32,7 +34,7 @@ class _MapViewState extends State<MapView> {
   GeoJsonParser myGeoJson = GeoJsonParser();
   final geo = GeoJson();
 
-  bool showPrayerZonesPill = true;
+  bool showPrayerZonesPill = false;
 
   @override
   void initState() {
@@ -73,6 +75,31 @@ class _MapViewState extends State<MapView> {
     return darkness < 0.5 ? Colors.black : Colors.white;
   }
 
+  DistrictJakimProperties? _getPlaceInfo(LatLng point) {
+    // Not working on the web
+    for (var mps in geo.features) {
+      List<mp.LatLng> points = [];
+      // mps.geometry: GeoJsonMultiPolygon
+      for (GeoJsonPolygon p in mps.geometry.polygons) {
+        for (var gs in p.geoSeries) {
+          for (var gp in gs.geoPoints) {
+            points.add(mp.LatLng(gp.latitude, gp.longitude));
+          }
+        }
+      }
+      var res = mp.PolygonUtil.containsLocationAtLatLng(
+          point.latitude, point.longitude, points, true);
+
+      if (res) {
+        var data = DistrictJakimProperties.fromJson(mps.properties!);
+        debugPrint("tapped on $data");
+        return data;
+      }
+    }
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -92,29 +119,9 @@ class _MapViewState extends State<MapView> {
               minZoom: 5,
               maxZoom: 15,
               onTap: (_, point) {
-                var tappedName = "";
-                // Not working on the web
-                for (var mps in geo.features) {
-                  List<mp.LatLng> points = [];
-                  // mps.geometry: GeoJsonMultiPolygon
-                  for (GeoJsonPolygon p in mps.geometry.polygons) {
-                    for (var gs in p.geoSeries) {
-                      for (var gp in gs.geoPoints) {
-                        points.add(mp.LatLng(gp.latitude, gp.longitude));
-                      }
-                    }
-                  }
-                  var res = mp.PolygonUtil.containsLocationAtLatLng(
-                      point.latitude, point.longitude, points, true);
-
-                  if (res) {
-                    debugPrint("tapped on ${mps.properties!["name"]}");
-                    tappedName = mps.properties!["name"];
-                  }
-                }
                 setState(() {
                   _lastTap = point;
-                  _lastTapName = tappedName;
+                  _selectedDistrict = _getPlaceInfo(point);
                 });
               },
               onMapEvent: (MapEvent mapEvent) {
@@ -124,6 +131,17 @@ class _MapViewState extends State<MapView> {
               },
             ),
             nonRotatedChildren: [
+              if (_lastTap != null)
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: SizedBox(
+                      width: 250,
+                      child: _MyCardInfo(
+                        data: _selectedDistrict,
+                        point: _lastTap,
+                      )),
+                ),
               Positioned(
                 bottom: 60,
                 right: 10,
@@ -223,8 +241,7 @@ class _MapViewState extends State<MapView> {
                   ],
                 ),
               MarkerLayer(markers: [
-                if (_lastTap != null)
-                  _buildPointMarker(_lastTap!, _lastTapName ?? ""),
+                if (_lastTap != null) _buildPointMarker(_lastTap!),
               ])
             ],
           );
@@ -235,38 +252,89 @@ class _MapViewState extends State<MapView> {
   }
 }
 
-Marker _buildPointMarker(LatLng point, String name) {
+Marker _buildPointMarker(LatLng point) {
   return Marker(
     point: point,
-    width: 340,
-    height: 80,
+    width: 15,
+    height: 15,
     builder: (context) {
-      return Transform.translate(
-        offset: const Offset(0, 31),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Container(
-              height: 15,
-              width: 15,
-              decoration: BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-                border: Border.all(
-                    color: Colors.white,
-                    width: 4,
-                    strokeAlign: BorderSide.strokeAlignOutside),
-              ),
-            ),
-            const SizedBox(height: 5),
-            SelectableText(
-              "Lat: ${point.latitude.toStringAsFixed(2)}, Lang: ${point.longitude.toStringAsFixed(2)}\n[$name]",
-              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          ],
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.red,
+          shape: BoxShape.circle,
+          border: Border.all(
+              color: Colors.white,
+              width: 4,
+              strokeAlign: BorderSide.strokeAlignOutside),
         ),
       );
     },
   );
+}
+
+class _MyCardInfo extends StatelessWidget {
+  const _MyCardInfo({Key? key, this.data, this.point}) : super(key: key);
+
+  final DistrictJakimProperties? data;
+  final LatLng? point;
+
+  void _copyToClipboard(BuildContext context, String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Copied to clipboard"),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListView(
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        children: [
+          ListTile(
+            title: Text(
+              point != null
+                  ? "${point!.latitude.toStringAsFixed(4)}, ${point!.longitude.toStringAsFixed(4)}"
+                  : "N/A",
+            ),
+            subtitle: const Text("Lat, Lang"),
+            onTap: () {
+              _copyToClipboard(context,
+                  "${point!.latitude.toStringAsFixed(4)}, ${point!.longitude.toStringAsFixed(4)}");
+            },
+          ),
+          ListTile(
+            title: Text(data?.name ?? "N/A"),
+            subtitle: const Text("Name"),
+            onTap: () {
+              _copyToClipboard(context, data?.name ?? "N/A");
+            },
+          ),
+          ListTile(
+            title: Text(
+              data?.jakimCode ?? "N/A",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: const Text("Jakim Code"),
+            onTap: () {
+              _copyToClipboard(context, data?.jakimCode ?? "N/A");
+            },
+          ),
+          ListTile(
+            title: Text(
+              "${data?.state ?? "N/A"} (${data?.codeState.toString() ?? "N/A"})",
+            ),
+            subtitle: const Text("State (code)"),
+            onTap: () {
+              _copyToClipboard(context,
+                  "${data?.state ?? "N/A"} (${data?.codeState.toString() ?? "N/A"})");
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
