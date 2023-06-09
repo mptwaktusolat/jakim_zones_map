@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'app.dart';
+import 'start_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -14,7 +14,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(primarySwatch: Colors.purple),
       title: 'Prayer Zones Visualization Tool',
-      home: const App(),
+      home: const StartScreen(),
     );
   }
 }
