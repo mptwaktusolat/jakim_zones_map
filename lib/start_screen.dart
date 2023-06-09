@@ -30,7 +30,7 @@ class _StartScreenState extends State<StartScreen> {
             const SizedBox(height: 16.0),
             ElevatedButton(
                 onPressed: () async {
-                  GeoJsonParser myGeoJson = GeoJsonParser();
+                  GeoJsonParser geojson = GeoJsonParser();
                   final geo = GeoJson();
                   setState(() => textStatus = 'Fetching Azanpro zones...');
                   var azp = await NetworkFetcher.fetchAzanproZones();
@@ -38,7 +38,7 @@ class _StartScreenState extends State<StartScreen> {
                   var jakim = await NetworkFetcher.fetchJakimZones();
                   setState(() => textStatus = 'Fetching geoJson...');
                   var res = await NetworkFetcher.fetchMalaysiaDistrictGeojson();
-                  myGeoJson.parseGeoJsonAsString(res);
+                  geojson.parseGeoJsonAsString(res);
                   if (kIsWeb) {
                     await geo.parseInMainThread(res.toString(), verbose: true);
                   } else {
@@ -49,14 +49,14 @@ class _StartScreenState extends State<StartScreen> {
                     MaterialPageRoute(
                       builder: (_) => MapView(
                         geo: geo,
-                        myGeoJson: myGeoJson,
+                        myGeoJson: geojson,
                         azanProZones: azp,
                         jakimZones: jakim,
                       ),
                     ),
                   );
                 },
-                child: Text('Start'))
+                child: const Text('Start'))
           ],
         ),
       ),

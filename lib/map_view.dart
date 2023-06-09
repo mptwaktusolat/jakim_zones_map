@@ -42,6 +42,12 @@ class _MapViewState extends State<MapView> {
 
   bool showPrayerZonesPill = false;
 
+  var favMarkers = {
+    "Rumah": LatLng(3.0670, 101.6369),
+    "Rumah Nenek": LatLng(3.1832, 102.2777),
+    "UIA Gombak": LatLng(3.247313, 101.739126),
+  };
+
   Color _getBgColor(String input) {
     // generate random colour for each state
     Random random = Random(input.hashCode);
@@ -265,6 +271,7 @@ class _MapViewState extends State<MapView> {
             ),
           MarkerLayer(markers: [
             if (_lastTap != null) _buildPointMarker(_lastTap!),
+            ...favMarkers.values.map((e) => _buildFavMarker(e)).toList(),
           ])
         ],
       ),
@@ -282,6 +289,26 @@ Marker _buildPointMarker(LatLng point) {
         decoration: BoxDecoration(
           color: Colors.red,
           shape: BoxShape.circle,
+          border: Border.all(
+              color: Colors.white,
+              width: 4,
+              strokeAlign: BorderSide.strokeAlignOutside),
+        ),
+      );
+    },
+  );
+}
+
+Marker _buildFavMarker(LatLng point) {
+  return Marker(
+    point: point,
+    width: 15,
+    height: 15,
+    builder: (context) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.orange,
+          shape: BoxShape.rectangle,
           border: Border.all(
               color: Colors.white,
               width: 4,
