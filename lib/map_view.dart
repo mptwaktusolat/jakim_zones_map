@@ -43,9 +43,9 @@ class _MapViewState extends State<MapView> {
   bool showPrayerZonesPill = false;
 
   var favMarkers = {
-    "Rumah": LatLng(3.0670, 101.6369),
-    "Rumah Nenek": LatLng(3.1832, 102.2777),
-    "UIA Gombak": LatLng(3.247313, 101.739126),
+    "Rumah": const LatLng(3.067, 101.636),
+    "Rumah Nenek": const LatLng(3.183, 102.277),
+    "UIA Gombak": const LatLng(3.247313, 101.739126),
   };
 
   Color _getBgColor(String input) {
@@ -147,7 +147,7 @@ class _MapViewState extends State<MapView> {
       body: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
-          center: LatLng(4.92, 108.23),
+          center: const LatLng(4.92, 108.23),
           zoom: _zoomValue,
           minZoom: 5,
           maxZoom: 15,
@@ -234,10 +234,6 @@ class _MapViewState extends State<MapView> {
               child: Text(
                 "${_locationDatas.length} locations",
               )),
-          AttributionWidget.defaultWidget(
-            source: 'OpenStreetMap contributors',
-            onSourceTapped: null,
-          ),
         ],
         children: [
           TileLayer(

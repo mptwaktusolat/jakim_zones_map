@@ -45,7 +45,7 @@ class _StartScreenState extends State<StartScreen> {
                     await geo.parse(res.toString());
                   }
                   setState(() => textStatus = 'Completed. Starting...');
-                  Navigator.of(context).push(
+                  Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (_) => MapView(
                         geo: geo,
