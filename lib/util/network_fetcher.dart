@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 import '../model/zones_data_model.dart';
 
 class NetworkFetcher {
@@ -26,6 +27,17 @@ class NetworkFetcher {
         'https://raw.githubusercontent.com/mptwaktusolat/malaysia.geojson/master/malaysia.district-jakim.geojson');
 
     return await _fetchRawFromInternet(uri);
+  }
+
+  static Future<String> getMptServerZoneFromGps(LatLng latLng) async {
+    var uri = Uri.https('mpt-server.vercel.app', '/api/zones/gps', {
+      'lat': latLng.latitude.toString(),
+      'lang': latLng.longitude.toString()
+    });
+
+    var res = await _fetchRawFromInternet(uri);
+    var resDecoded = jsonDecode(res);
+    return resDecoded['zone'];
   }
 
   static Future<String> _fetchRawFromInternet(Uri uri) async {

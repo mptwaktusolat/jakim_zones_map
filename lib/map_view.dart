@@ -11,6 +11,8 @@ import 'model/zones_data_model.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:maps_toolkit/maps_toolkit.dart' as mp;
 
+import 'util/network_fetcher.dart';
+
 enum PlaceData { azanPro, jakim }
 
 class MapView extends StatefulWidget {
@@ -357,6 +359,7 @@ class _MyCardInfo extends StatelessWidget {
             },
           ),
           ListTile(
+            tileColor: Colors.blueGrey[50],
             title: Text(
               data?.jakimCode ?? "N/A",
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -366,6 +369,34 @@ class _MyCardInfo extends StatelessWidget {
               _copyToClipboard(context, data?.jakimCode ?? "N/A");
             },
           ),
+          FutureBuilder<String>(
+              future: NetworkFetcher.getMptServerZoneFromGps(point!),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return ListTile(title: Text('Error : ${snapshot.error}'));
+                }
+
+                return ListTile(
+                  title: Text(
+                    snapshot.data ?? "N/A",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: snapshot.data == data?.jakimCode
+                            ? Colors.green
+                            : Colors.red),
+                  ),
+                  subtitle: const Text("Jakim Code from MPT Server"),
+                  onTap: () {
+                    _copyToClipboard(context, snapshot.data ?? "N/A");
+                  },
+                );
+              }),
           ListTile(
             title: Text(
               "${data?.state ?? "N/A"} (${data?.codeState.toString() ?? "N/A"})",
