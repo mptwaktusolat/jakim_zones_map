@@ -69,14 +69,24 @@ class _MapViewState extends State<MapView> {
     // Not working on the web
     for (var mps in widget.geo.features) {
       List<mp.LatLng> points = [];
-      // mps.geometry: GeoJsonMultiPolygon
-      for (GeoJsonPolygon p in mps.geometry.polygons) {
-        for (var gs in p.geoSeries) {
+      // if mps.geometry: GeoJsonMultiPolygon
+      if (mps.geometry is GeoJsonMultiPolygon) {
+        for (GeoJsonPolygon p in mps.geometry.polygons) {
+          for (var gs in p.geoSeries) {
+            for (var gp in gs.geoPoints) {
+              points.add(mp.LatLng(gp.latitude, gp.longitude));
+            }
+          }
+        }
+      } else {
+        // if mps.geometry: GeoJsonPolygon (For manual addition like Hulu Perak case)
+        for (var gs in (mps.geometry as GeoJsonPolygon).geoSeries) {
           for (var gp in gs.geoPoints) {
             points.add(mp.LatLng(gp.latitude, gp.longitude));
           }
         }
       }
+
       var res = mp.PolygonUtil.containsLocationAtLatLng(
           point.latitude, point.longitude, points, true);
 
