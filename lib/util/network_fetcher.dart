@@ -30,9 +30,10 @@ class NetworkFetcher {
   }
 
   static Future<String> getMptServerZoneFromGps(LatLng latLng) async {
-    var uri = Uri.https('mpt-server.vercel.app', '/api/zones/gps', {
+    var uri = Uri.https(
+        'mpt-server-78f17jggw-iqfareez.vercel.app', '/api/zones/gps', {
       'lat': latLng.latitude.toString(),
-      'lang': latLng.longitude.toString()
+      'long': latLng.longitude.toString()
     });
 
     var res = await _fetchRawFromInternet(uri);
