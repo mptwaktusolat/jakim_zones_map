@@ -113,16 +113,17 @@ class _MapViewState extends State<MapView> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         forceMaterialTransparency: true,
-        leading: ElevatedButton(
+        leading: IconButton(
           onPressed: () {
             key.currentState!.openDrawer();
           },
-          style: ElevatedButton.styleFrom(
+          style: IconButton.styleFrom(
+            padding: const EdgeInsets.all(12.0),
             backgroundColor: Colors.black45,
             foregroundColor: Colors.white,
             shape: const CircleBorder(),
           ),
-          child: const Icon(Icons.menu),
+          icon: const Icon(Icons.menu),
         ),
       ),
       drawer: Drawer(
@@ -146,9 +147,9 @@ class _MapViewState extends State<MapView> {
               },
             ),
             ListTile(
-              title: const Text('MPT Server Locations'),
+              title: const Text('All Locations'),
               onTap: () {
-                launchUrl(Uri.parse('https://mpt-server.vercel.app/locations'),
+                launchUrl(Uri.parse('https://api.waktusolat.app/locations'),
                     mode: LaunchMode.externalApplication);
                 Navigator.pop(context);
               },
@@ -279,7 +280,7 @@ class _MapViewState extends State<MapView> {
             ),
           MarkerLayer(markers: [
             if (_lastTap != null) _buildPointMarker(_lastTap!),
-            ...favMarkers.values.map((e) => _buildFavMarker(e)).toList(),
+            ...favMarkers.values.map((e) => _buildFavMarker(e)),
           ])
         ],
       ),
@@ -328,7 +329,7 @@ Marker _buildFavMarker(LatLng point) {
 }
 
 class _MyCardInfo extends StatelessWidget {
-  const _MyCardInfo({Key? key, this.data, this.point}) : super(key: key);
+  const _MyCardInfo({this.data, this.point});
 
   final DistrictJakimProperties? data;
   final LatLng? point;
@@ -380,7 +381,7 @@ class _MyCardInfo extends StatelessWidget {
             },
           ),
           FutureBuilder<String>(
-              future: NetworkFetcher.getMptServerZoneFromGps(point!),
+              future: NetworkFetcher.getWaktuSolatApiFromGps(point!),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(

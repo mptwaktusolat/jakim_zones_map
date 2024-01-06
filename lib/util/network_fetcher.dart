@@ -7,7 +7,7 @@ import '../model/zones_data_model.dart';
 class NetworkFetcher {
   static Future<List<ZonesDataModel>> fetchJakimZones() async {
     var uri = Uri.parse(
-        'https://raw.githubusercontent.com/mptwaktusolat/mpt-server/main/json/zoneStatesData/jakimZones.json');
+        'https://github.com/mptwaktusolat/mpt-server/raw/53aaa43ddd95d2498db2dc7b9faeac110912450e/json/zoneStatesData/jakimZones.json');
 
     var res = await _fetchJsonFromInternet(uri);
     return ZonesDataModel.fromList(res);
@@ -15,7 +15,7 @@ class NetworkFetcher {
 
   static Future<List<ZonesDataModel>> fetchAzanproZones() async {
     var uri = Uri.parse(
-        'https://raw.githubusercontent.com/mptwaktusolat/mpt-server/main/json/zoneStatesData/azanProZones.json');
+        'https://github.com/mptwaktusolat/mpt-server/raw/53aaa43ddd95d2498db2dc7b9faeac110912450e/json/zoneStatesData/azanProZones.json');
 
     var res = await _fetchJsonFromInternet(uri);
     return ZonesDataModel.fromList(res);
@@ -24,14 +24,13 @@ class NetworkFetcher {
   static Future<String> fetchMalaysiaDistrictGeojson() async {
     // Originally from https://github.com/nullifye/malaysia.geojson
     var uri = Uri.parse(
-        'https://raw.githubusercontent.com/mptwaktusolat/malaysia.geojson/seperate/perak/malaysia.district-jakim.geojson');
+        'https://github.com/mptwaktusolat/jakim.geojson/raw/master/malaysia.district-jakim.geojson');
 
     return await _fetchRawFromInternet(uri);
   }
 
-  static Future<String> getMptServerZoneFromGps(LatLng latLng) async {
-    var uri = Uri.https(
-        'mpt-server-78f17jggw-iqfareez.vercel.app', '/api/zones/gps', {
+  static Future<String> getWaktuSolatApiFromGps(LatLng latLng) async {
+    var uri = Uri.https('api.waktusolat.app', '/api/zones/gps', {
       'lat': latLng.latitude.toString(),
       'long': latLng.longitude.toString()
     });
